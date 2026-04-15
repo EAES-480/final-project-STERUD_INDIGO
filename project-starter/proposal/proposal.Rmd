@@ -64,6 +64,7 @@ state_summary <- Waste_Resources %>%
 ```
 
 ## 2. Exploratory Visualization
+
 ```{r exploratory visualization, message = FALSE, eval = TRUE}
 ggplot(state_summary, aes(x = reorder(state_abbr, -mean_state_vol), y = mean_state_vol)) +
   geom_col(fill = "steelblue") +
@@ -93,11 +94,21 @@ theme_classic(base_size = 18) +
 
 ## 3. Possible question and method
 
+**Questions**
+
 1. Do certain mineral commodities present more waste than others?
 2. Is there a correlation between the type of tailings and the amount of waste produced at the site?
 3. Is there a correlation between the type of resource and size of mine?
 
+**Data analysis plan**
 
+The primary outcomes, or (Y) variables in this analysis will be mine waste volume (Calc_Vol) and material amounts (Mat_Amnt).
+The main explanatory (X) variables will include mineral commodity type (Ore_Min), gangue mineral composition (Gangue_Min), and state location (state_abbr/state_name).
+
+I will begin with summary statistics and visualizations of waste volume across states and mineral types. These plots will help identify patterns and potential differences between groups.
+I will also consider linear regression models to evaluate whether mineral type and/or state could possibly predict waste volume. If mineral categories are treated as groups, I could use an ANOVA test to determine whether mean waste volumes differ significantly across mineral types.
+
+The results needed to support my hypotheses would include statistically significant differences in waste volume across mineral categories or states, (noted by calculated p-values or r-squared values).
 
 
 
