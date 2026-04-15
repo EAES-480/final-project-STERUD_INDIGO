@@ -1,16 +1,16 @@
-# *DATA*
+# **DATA**
 
 ## Waste_Geology.csv
 
-- *`Site_ID`: Site ID: an alpha-numeric identification assigned to each site.*
+- **`Site_ID`: Site ID: an alpha-numeric identification assigned to each site.**
 - `Site_Name`: Site Name
 - `Ftr_ID`: Feature ID: a unique alpha-numeric value assigned to each feature.
 - `Ftr_Name`: Feature Name 
 - `Dep_Type_1`: Primary Deposit Type: primary reported deposit type for the site and/or feature.
 - `Dep_Type_2`: Other Deposit Type/s: other reported deposit types for the site and/or feature.
-- *`Commodity`: Commodity: produced commodity/s reported by the source mine or mining district.*
-- *`Ore_Min`: Ore Minerals: minerals identified to be commodities or could be economically beneficial.* 
-- *`Gangue_Min`: Gangue Minerals: minerals identified to be economically undesirable.*
+- **`Commodity`: Commodity: produced commodity/s reported by the source mine or mining district.**
+- **`Ore_Min`: Ore Minerals: minerals identified to be commodities or could be economically beneficial.** 
+- **`Gangue_Min`: Gangue Minerals: minerals identified to be economically undesirable.**
 - `Remarks`: Remarks: field that contains general remarks not accommodated by the data structure.  
 - `Prim_Cit`: Primary Citation: shortened version of the primary citation including author name/s and publication year.  
 - `Sec_Cit`: Secondary Citation/s: shortened version of the secondary citation including author name/s and publication year.  
@@ -18,26 +18,26 @@
 
 ## Waste_Geology.csv
 
-- *`Site_ID`: Site ID: an alpha-numeric identification assigned to a site*
+- **`Site_ID`: Site ID: an alpha-numeric identification assigned to a site**
 - `Site_Name`: Site Name: name that best represents the grouping of features.  
 - `Ftr_ID`: Feature ID: a unique alpha-numeric value assigned to each feature. The identifier includes the Site ID (`Site_ID`).  
 - `Ftr_Name`: Feature Name: known name of the feature.  
 
 - `Rep_Vol`: Reported Volume: reported volume of the waste feature. Associated units are reported in `Rep_V_Ut`.  
 - `Rep_V_Ut`: Reported Volume Units: units of the reported volume (`Rep_Vol`).  
-- *`Calc_Vol`: Calculated Volume: volume calculated by USGS. Associated units are reported in `Calc_V_Ut`.*
+- **`Calc_Vol`: Calculated Volume: volume calculated by USGS. Associated units are reported in `Calc_V_Ut`.**
 - `Calc_V_Ut`: Calculated Volume Units: units of the calculated volume (`Calc_Vol`) in cubic meters.  
 - `DEM_Date`: Digital Elevation Model Date: publication year of the DEM used for volume calculation.  
 
 - `Ton_Factor`: Tonnage Factor: reported tonnage factor of the waste feature. Associated units are reported in `Ton_F_Ut`.  
 - `Ton_F_Ut`: Tonnage Factor Units: units of the tonnage factor (`Ton_Factor`).  
 
-- *`Material`: Material reported by the source document. May be elemental or compound form.* 
+- **`Material`: Material reported by the source document. May be elemental or compound form.**
 - `Mat_Type`: Material Type: type of material reported (equivalent to feature type).  
-- *`Mat_Amnt`: Material Amount: reported amount of material. Associated units are reported in `Mat_Units`.*
+- **`Mat_Amnt`: Material Amount: reported amount of material. Associated units are reported in `Mat_Units`.**
 - `Mat_Units`: Material Units: units of the material amount (`Mat_Amnt`).  
 
-- *`Grade`: Grade: reported grade of the waste feature material. Associated units are reported in `Grade_Units`.*
+- **`Grade`: Grade: reported grade of the waste feature material. Associated units are reported in `Grade_Units`.**
 - `Grade_Units`: Grade Units: units of grade.  
 
 - `Contained`: Contained: contained commodity amount reported for the waste feature. Associated units are reported in `ContUnits`.  
