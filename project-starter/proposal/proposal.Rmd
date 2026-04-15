@@ -1,7 +1,8 @@
 ---
-title: "Project proposal"
-author: "Team name"
+title: "US Mining ??"
+author: "Indigo Sterud"
 output: html_document
+chunk_output_type: inline
 ---
 
 ```{r load-packages, message = FALSE}
@@ -11,6 +12,92 @@ library(broom)
 
 ## 1. Data
 
+**Introduction**
+As we continue our societal journey into a new age where technology rules, the ability to extract minerals to produce batteries, microchips, solar panels and more- becomes increasingly prevalent. I chose to do my final project using a public research domain under the United States Geological Survey (USGS), named National Mine Waste Inventory (NMWI). This database has an abundance of csv files, shapefiles, gdb files, and more, and catalogs above-ground mine waste features such as tailings and rock waste piles that are remnants of both historical and current mining activities. The entries and descriptions in the database are derived from publicly available sources compiled by USGS and State geological survey partners, and contain the states of Arizona, Colorado, Kentucky, Michigan, Montana, Nevada, New Mexico, North Carolina, Oklahoma, Utah, and Virginia.
+
+***The main fields present in the databases I will be reviewing are:***
+
+- Mat_Amnts: Material Amount: reported Material amount in the waste feature.
+- Mat_Type: type of material reported
+- Mat_Units: units of the Mat_Amnt
+- Calc_Vol: Volume of the mine
+- Calc_V_Ut: Volume of the mine in cubic meters
+- state_abbr: state abbreviated name (AZ, UT, etc.)
+- Ore_Min: Ore Minerals: mineral/s identified in the cited reference/s that is a commodity, or that could be economically beneficial.
+- Gangue_Min: Gangue Minerals: minerals identified in the cited reference(s) that were not economically desirable. In most cases, these minerals do not contain a commodity from the commodity list.
+
+```{r data, message = FALSE, eval = TRUE}
+library(readr)
+Waste_Geology <- read_csv("Waste_Geology.csv")
+Waste_Resources <- read_csv("Waste_Resources.csv")
+
+```
+
+```{r skimming csvs, message = FALSE, eval = TRUE}
+glimpse(Waste_Geology)
+
+glimpse(Waste_Resources)
+
+```
+**Simple Cleaning: Making State Columns and Calculating Mine Volume Statistics**
+
+```{r cleaning data, message = FALSE, eval = TRUE}
+Waste_Resources <- Waste_Resources %>%
+mutate( 
+state_abbr = substr(Site_ID, 1, 2),
+state_name = state.name[match(state_abbr, state.abb)]
+)
+
+Waste_Geology <- Waste_Geology %>%
+mutate( 
+state_abbr = substr(Site_ID, 1, 2),
+state_name = state.name[match(state_abbr, state.abb)]
+)
+
+state_summary <- Waste_Resources %>%
+  group_by(state_name, state_abbr) %>%
+  summarize(
+    mean_state_vol = mean(Calc_Vol, na.rm = TRUE),
+    sum_state_vol = sum(Calc_Vol, na.rm = TRUE),
+    median_state_vol = median(Calc_Vol, na.rm = TRUE)
+  )
+```
+
 ## 2. Exploratory Visualization
+```{r exploratory visualization, message = FALSE, eval = TRUE}
+ggplot(state_summary, aes(x = reorder(state_abbr, -mean_state_vol), y = mean_state_vol)) +
+  geom_col(fill = "steelblue") +
+  theme_classic(base_size = 18) +
+  labs(title = "Average Mine Volumes by State",
+       x = "State",
+       y = "Mean Volume")
+
+ggplot(state_summary, aes(x = reorder(state_abbr, -sum_state_vol), y = sum_state_vol)) +
+  geom_col(fill = "forestgreen") +
+  theme_classic(base_size = 17) +
+  labs(
+    title = "Total Volume of Mines per State",
+    subtitle = "Will unlikely be considered, Data doesn't reflect all mines",
+    x = "State",
+    y = "Total Volume"
+  )
+
+ggplot(state_summary, aes(x = reorder(state_abbr, -median_state_vol),y = median_state_vol)) + geom_col(fill = "maroon") +
+theme_classic(base_size = 18) +
+  labs(
+    title = "Median of Mine Volumes by State",
+    x = "State",
+    y = "Median Volume"
+    )
+```
 
 ## 3. Possible question and method
+
+1. Do certain mineral commodities present more waste than others?
+2. Is there a correlation between the type of tailings and the amount of waste produced at the site?
+3. Is there a correlation between the type of resource and size of mine?
+
+
+
+
+
