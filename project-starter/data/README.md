@@ -16,7 +16,7 @@
 - `Sec_Cit`: Secondary Citation/s: shortened version of the secondary citation including author name/s and publication year.  
 - `Last_Updt`: Last Updated: date the record was last updated.
 
-## Waste_Geology.csv
+## Waste_Resources.csv
 
 - **`Site_ID`: Site ID: an alpha-numeric identification assigned to a site**
 - `Site_Name`: Site Name: name that best represents the grouping of features.  
