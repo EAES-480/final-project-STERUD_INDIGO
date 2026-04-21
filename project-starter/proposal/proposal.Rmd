@@ -10,6 +10,12 @@ library(tidyverse)
 library(broom)
 ```
 
+> GM GRADE: 19/20 - excellent work! Please see my committed changes to guide your analysis. Let me know if you have questions.
+
+> Description: 8/8 
+> Content: 9/10 - suggest anova > multiple lm workflow 
+> Quality: 2/2 - great figures!
+
 ## 1. Data
 
 **Introduction**
@@ -28,8 +34,8 @@ As we continue our societal journey into a new age where technology rules, the a
 
 ```{r data, message = FALSE, eval = TRUE}
 library(readr)
-Waste_Geology <- read_csv("Waste_Geology.csv")
-Waste_Resources <- read_csv("Waste_Resources.csv")
+Waste_Geology <- read_csv("../data/Waste_Geology.csv")
+Waste_Resources <- read_csv("../data/Waste_Resources.csv")
 
 ```
 
@@ -97,8 +103,8 @@ theme_classic(base_size = 18) +
 **Questions**
 
 1. Do certain mineral commodities present more waste than others?
-2. Is there a correlation between the type of tailings and the amount of waste produced at the site?
-3. Is there a correlation between the type of resource and size of mine?
+2. Is there a significant effect of the type of tailings and the amount of waste produced at the site?
+3. Is there a significant effect of between the type of resource and size of mine?
 
 **Data analysis plan**
 
@@ -106,7 +112,8 @@ The primary outcomes, or (Y) variables in this analysis will be mine waste volum
 The main explanatory (X) variables will include mineral commodity type (Ore_Min), gangue mineral composition (Gangue_Min), and state location (state_abbr/state_name).
 
 I will begin with summary statistics and visualizations of waste volume across states and mineral types. These plots will help identify patterns and potential differences between groups.
-I will also consider linear regression models to evaluate whether mineral type and/or state could possibly predict waste volume. If mineral categories are treated as groups, I could use an ANOVA test to determine whether mean waste volumes differ significantly across mineral types.
+Because mineral categories are categorical, I will use an ANOVA test to determine whether mean waste volumes differ significantly across mineral types.
+If there are group effects, I will use multiple linear regression models to evaluate which mineral type and/or states affect waste volume. 
 
 The results needed to support my hypotheses would include statistically significant differences in waste volume across mineral categories or states, (noted by calculated p-values or r-squared values).
 
