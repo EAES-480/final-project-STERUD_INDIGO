@@ -28,7 +28,7 @@ library(readr)
 
 ```{r setup, include=FALSE}
 # For better figure resolution
-knitr::opts_chunk$set(fig.retina = 3, dpi = 400, fig.width = 8, fig.asp = 0.618, out.width = "100%")
+knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 8, fig.asp = 0.600, out.width = "80%")
 ```
 
 ```{r load-data, include=FALSE}
@@ -61,16 +61,19 @@ class: center, middle
 ## Research Questions
 
 - Do certain mineral commodities produce more waste?
+--
 - Does geology (ore / gangue minerals) influence waste volume?
+--
 - Are there differences in waste production across states?
 
 ---
 
 ## Mining Data
-- Each row represents a mine waste feature
-- Volume = Calc_Vol (m³)
+- Columns represent different mine waste features for each Mine Location.
+- Ore_Min = commodity minerals
+- Gangue_Min = non-commodity minerals
 
-```{r glimpse-table}
+```{r glimpse-table, echo = FALSE}
 mining_clean %>%
   select(Site_Name, state_abbr, Calc_Vol, Ore_Min, Gangue_Min) %>%
   head(10) %>%
@@ -79,28 +82,36 @@ mining_clean %>%
 
 ---
 
-# State-Level Waste Patterns
+# Waste Patterns by State (Plot)
 
 - Are there differences in waste production across states?
 
 ```{r state-plot, echo=FALSE}
+# In this chunk I'm doing a bunch of analysis that I don't want to present 
+# in my slides. But I need the resulting data frame for a plot I want to present.
 state_summary <- mining_clean %>%
   group_by(state_abbr) %>%
-  summarize(mean_vol = mean(log_vol, na.rm = TRUE))
+  summarize(mean_vol = mean(Calc_Vol, na.rm = TRUE))
+```
 
+```{r plot-state-waste, echo = FALSE}
+# Code hidden with echo = FALSE
+# Uses modified iris dataset from previous chunk
+# Play around with height and width until you're happy with the look
 ggplot(state_summary, aes(x = reorder(state_abbr, mean_vol), y = mean_vol)) +
   geom_col(fill = "steelblue") +
-  theme_classic() +
+  theme_bw() +
   labs(
     title = "Average Mine Waste Volume by State",
     x = "State",
-    y = "Mean Log Volume"
+    y = "Mean Waste Volume"
   )
 ```
 
 ---
 
 # Something
+
 ---
 
 # Hello World

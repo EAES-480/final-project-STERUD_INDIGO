@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Presentation title</title>
+    <title>What Controls Mine Waste Volume in the U.S.?</title>
     <meta charset="utf-8" />
     <meta name="author" content="Indigo Sterud" />
     <meta name="date" content="2026-05-03" />
@@ -13,10 +13,10 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# Presentation title
+# What Controls Mine Waste Volume in the U.S.?
 ]
 .subtitle[
-## Presentation subtitle (if any)
+## A Geological Analysis using USGS NMWI Data
 ]
 .author[
 ### Indigo Sterud
@@ -47,92 +47,125 @@ style_xaringan(
 
 class: center, middle
 
-## A statement of the overall goal / research question
+## Research Questions
+
+- Do certain mineral commodities produce more waste?
+- Does geology (ore / gangue minerals) influence waste volume?
+- Are there differences in waste production across states?
 
 ---
 
-class: inverse, center, middle
+## Mining Data
+- Each row represents a mine waste feature
+- Volume = Calc_Vol (m³)
 
-# Commodity Minerals
+
+``` r
+mining_clean %&gt;%
+  select(Site_Name, state_abbr, Calc_Vol, Ore_Min, Gangue_Min) %&gt;%
+  head(10) %&gt;%
+  kable(format = "html")
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Site_Name &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; state_abbr &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Calc_Vol &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Ore_Min &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Gangue_Min &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Copper Cities &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 28908555 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; azurite; chalcocite; chalcopyrite; covellite; gold; malachite; molybdenite; silver; turquoise &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; apatite; biotite; calcite; chlorite; clinozoisite; epidote; galena; magnetite; montmorillonite; oligoclase; orthoclase; plagioclase; pyrite; quartz; sericite; sphalerite; titanite; zircon &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Copper Cities &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 43146568 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; azurite; chalcocite; chalcopyrite; covellite; gold; malachite; molybdenite; silver; turquoise &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; apatite; biotite; calcite; chlorite; clinozoisite; epidote; galena; magnetite; montmorillonite; oligoclase; orthoclase; plagioclase; pyrite; quartz; sericite; sphalerite; titanite; zircon &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Copper Cities &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 9245409 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; azurite; chalcocite; chalcopyrite; covellite; gold; malachite; molybdenite; silver; turquoise &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; apatite; biotite; calcite; chlorite; clinozoisite; epidote; galena; magnetite; montmorillonite; oligoclase; orthoclase; plagioclase; pyrite; quartz; sericite; sphalerite; titanite; zircon &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Miami-Inspiration &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 25089774 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; atacamite; azurite; bornite; brochantite; chalcocite; chalcopyrite; chrysocolla; covellite; cuprite; galena; gold; libethenite; lindgrenite; malachite; molybdenite; silver &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; andalusite (1); calcite (2); chlorite (1); epidote (2); goethite; hematite; jarosite; magnetite (2); muscovite; orthoclase (1); plagioclase (1); pyrite; quartz; sericite &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Miami-Inspiration &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 30865504 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; atacamite; azurite; bornite; brochantite; chalcocite; chalcopyrite; chrysocolla; covellite; cuprite; galena; gold; libethenite; lindgrenite; malachite; molybdenite; silver &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; andalusite (1); calcite (2); chlorite (1); epidote (2); goethite; hematite; jarosite; magnetite (2); muscovite; orthoclase (1); plagioclase (1); pyrite; quartz; sericite &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Miami-Inspiration &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3153748 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; atacamite; azurite; bornite; brochantite; chalcocite; chalcopyrite; chrysocolla; covellite; cuprite; galena; gold; libethenite; lindgrenite; malachite; molybdenite; silver &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; andalusite (1); calcite (2); chlorite (1); epidote (2); goethite; hematite; jarosite; magnetite (2); muscovite; orthoclase (1); plagioclase (1); pyrite; quartz; sericite &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Miami-Inspiration &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 32894934 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; atacamite; azurite; bornite; brochantite; chalcocite; chalcopyrite; chrysocolla; covellite; cuprite; galena; gold; libethenite; lindgrenite; malachite; molybdenite; silver &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; andalusite (1); calcite (2); chlorite (1); epidote (2); goethite; hematite; jarosite; magnetite (2); muscovite; orthoclase (1); plagioclase (1); pyrite; quartz; sericite &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Miami-Inspiration &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 14533850 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; atacamite; azurite; bornite; brochantite; chalcocite; chalcopyrite; chrysocolla; covellite; cuprite; galena; gold; libethenite; lindgrenite; malachite; molybdenite; silver &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; andalusite (1); calcite (2); chlorite (1); epidote (2); goethite; hematite; jarosite; magnetite (2); muscovite; orthoclase (1); plagioclase (1); pyrite; quartz; sericite &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Miami-Inspiration &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 61001211 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; atacamite; azurite; bornite; brochantite; chalcocite; chalcopyrite; chrysocolla; covellite; cuprite; galena; gold; libethenite; lindgrenite; malachite; molybdenite; silver &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; andalusite (1); calcite (2); chlorite (1); epidote (2); goethite; hematite; jarosite; magnetite (2); muscovite; orthoclase (1); plagioclase (1); pyrite; quartz; sericite &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Miami-Inspiration &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; AZ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2300843 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; atacamite; azurite; bornite; brochantite; chalcocite; chalcopyrite; chrysocolla; covellite; cuprite; galena; gold; libethenite; lindgrenite; malachite; molybdenite; silver &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; andalusite (1); calcite (2); chlorite (1); epidote (2); goethite; hematite; jarosite; magnetite (2); muscovite; orthoclase (1); plagioclase (1); pyrite; quartz; sericite &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 
 ---
-#Combining CSV files
-- I have 2 datasets: Waste_Geology.csv, and Waste_Resources.csv
-- I need it to be just one!
+
+# State-Level Waste Patterns (Plot)
+
+- Are there differences in waste production across states?
 
 
-```
-## Warning in left_join(Waste_Resources, Waste_Geology, by = "Site_ID"): Detected an unexpected many-to-many relationship between `x` and `y`.
-## ℹ Row 207 of `x` matches multiple rows in `y`.
-## ℹ Row 1 of `y` matches multiple rows in `x`.
-## ℹ If a many-to-many relationship is expected, set `relationship =
-##   "many-to-many"` to silence this warning.
-```
 
-```
-## Rows: 783
-## Columns: 50
-## $ Site_ID     &lt;chr&gt; "AZ000001", "AZ000001", "AZ000001", "AZ000002", "AZ000002"…
-## $ Site_Name.x &lt;chr&gt; "Copper Cities", "Copper Cities", "Copper Cities", "Miami-…
-## $ Ftr_ID.x    &lt;chr&gt; "AZ000001-001", "AZ000001-002", "AZ000001-003", "AZ000002-…
-## $ Ftr_Name.x  &lt;chr&gt; "No. 2 Tailings (1)", NA, "No. 8 Tailings (1)", "No. 2 Tai…
-## $ Rep_Vol     &lt;dbl&gt; 34000000, NA, 7500000, 400000, 28290000, 7580000, 36210000…
-## $ Rep_V_Ut    &lt;chr&gt; "cubic meters", NA, "cubic meters", "cubic meters", "cubic…
-## $ Calc_Vol    &lt;dbl&gt; 28908555, 43146568, 9245409, 25089774, 30865504, 3153748, …
-## $ Calc_V_Ut   &lt;chr&gt; "cubic meters", "cubic meters", "cubic meters", "cubic met…
-## $ DEM_Date    &lt;chr&gt; "2024", "2024", "2024", "2024", "2024", "2024", "2024", "2…
-## $ Ton_Factor  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Ton_F_Ut    &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Material    &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Mat_Type    &lt;chr&gt; "Tailings - pond", "Leach pile - heap", "Tailings - pond",…
-## $ Mat_Amnt    &lt;dbl&gt; NA, NA, NA, NA, 4.50e+07, 1.20e+07, 5.80e+07, 2.80e+07, NA…
-## $ Mat_Units   &lt;chr&gt; NA, NA, NA, NA, "metric tons", "metric tons", "metric tons…
-## $ Grade       &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Grade_Units &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Contained   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ ContUnits   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Rep_Vol_SI  &lt;dbl&gt; 34000000, NA, 7500000, 400000, 28290000, 7580000, 36210000…
-## $ Rep_Vut_SI  &lt;chr&gt; "cubic meters", NA, "cubic meters", "cubic meters", "cubic…
-## $ Ton_F_SI    &lt;dbl&gt; NA, NA, NA, NA, 1.6111, 1.6111, 1.6111, 1.6111, NA, NA, NA…
-## $ Ton_F_SI_U  &lt;chr&gt; NA, NA, NA, NA, "metric tons per cubic meter", "metric ton…
-## $ MatAmntSI   &lt;dbl&gt; NA, NA, NA, NA, 4.50e+07, 1.20e+07, 5.80e+07, 2.80e+07, NA…
-## $ MatUnitSI   &lt;chr&gt; NA, NA, NA, NA, "metric tons", "metric tons", "metric tons…
-## $ GradeSI     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ GradeUntSI  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ CntSIComAm  &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ CntSIComUt  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ CntSIComod  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Rsrc_Class  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Rsrc_Code   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Rsrc_Date   &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ RsrcMethod  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Remarks.x   &lt;chr&gt; "Tailings thickness is up to 85 meters", NA, "Tailings thi…
-## $ Prim_Cit.x  &lt;chr&gt; "BHP Group Ltd. (2024)", NA, "BHP Group Ltd. (2024)", "BHP…
-## $ Sec_Cit.x   &lt;chr&gt; NA, NA, NA, NA, "Freeport-McMoRan, Inc. (2024a)", "Freepor…
-## $ Last_Updt.x &lt;date&gt; 2026-01-12, 2026-01-12, 2026-01-12, 2026-01-12, 2026-01-1…
-## $ Site_Name.y &lt;chr&gt; "Copper Cities", "Copper Cities", "Copper Cities", "Miami-…
-## $ Ftr_ID.y    &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Ftr_Name.y  &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Dep_Type_1  &lt;chr&gt; "Calc-alkaline porphyry copper", "Calc-alkaline porphyry c…
-## $ Dep_Type_2  &lt;chr&gt; "Supergene", "Supergene", "Supergene", "Exotic; Supergene"…
-## $ Commodity   &lt;chr&gt; "copper (1); gold (1); molybdenum (1); silver (1)", "coppe…
-## $ Ore_Min     &lt;chr&gt; "azurite; chalcocite; chalcopyrite; covellite; gold; malac…
-## $ Gangue_Min  &lt;chr&gt; "apatite; biotite; calcite; chlorite; clinozoisite; epidot…
-## $ Remarks.y   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
-## $ Prim_Cit.y  &lt;chr&gt; "Simmons and Fowells (1966)", "Simmons and Fowells (1966)"…
-## $ Sec_Cit.y   &lt;chr&gt; "(1) Briggs (2022)", "(1) Briggs (2022)", "(1) Briggs (202…
-## $ Last_Updt.y &lt;date&gt; 2025-06-26, 2025-06-26, 2025-06-26, 2025-08-06, 2025-08-0…
-```
+&lt;img src="presentation_files/figure-html/plot-state-waste-1.png" alt="" width="100%" /&gt;
 
 ---
-#Cleaning the file
-.footnote[
-[*] This file is huge and messy. I need to clean it up!
-]
 
+# Something
 
-
-
+---
 
 # Hello World
 
@@ -215,7 +248,7 @@ glance(model)
 
 
 
-&lt;img src="presentation_files/figure-html/plot-iris-1.png" alt="" width="80%" /&gt;
+&lt;img src="presentation_files/figure-html/plot-iris-1.png" alt="" width="100%" /&gt;
 
 ---
 
