@@ -24,11 +24,12 @@ library(palmerpenguins)
 library(knitr)
 library(xaringanthemer)
 library(readr)
+library(kableExtra)
 ```
 
 ```{r setup, include=FALSE}
 # For better figure resolution
-knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 8, fig.asp = 0.600, out.width = "80%")
+knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 6, fig.asp = 0.618, out.width = "80%")
 ```
 
 ```{r load-data, include=FALSE}
@@ -49,21 +50,24 @@ mining_clean <- mining_df %>%
   drop_na(Calc_Vol, Ore_Min)
 ```
 
-```{r}
+```{r, echo = FALSE}
 style_xaringan(
   title_slide_background_image = "img/Innovation-in-mining.jpg"
 )
 ```
 
 
-class: center, middle
-
 ## Research Questions
 
+
 - Do certain mineral commodities produce more waste?
+
 --
+
 - Does geology (ore / gangue minerals) influence waste volume?
+
 --
+
 - Are there differences in waste production across states?
 
 ---
@@ -77,66 +81,107 @@ class: center, middle
 mining_clean %>%
   select(Site_Name, state_abbr, Calc_Vol, Ore_Min, Gangue_Min) %>%
   head(10) %>%
-  kable(format = "html")
-```
-
----
-
-# Waste Patterns by State (Plot)
-
-- Are there differences in waste production across states?
-
-```{r state-plot, echo=FALSE}
-# In this chunk I'm doing a bunch of analysis that I don't want to present 
-# in my slides. But I need the resulting data frame for a plot I want to present.
-state_summary <- mining_clean %>%
-  group_by(state_abbr) %>%
-  summarize(mean_vol = mean(Calc_Vol, na.rm = TRUE))
-```
-
-```{r plot-state-waste, echo = FALSE}
-# Code hidden with echo = FALSE
-# Uses modified iris dataset from previous chunk
-# Play around with height and width until you're happy with the look
-ggplot(state_summary, aes(x = reorder(state_abbr, mean_vol), y = mean_vol)) +
-  geom_col(fill = "steelblue") +
-  theme_bw() +
-  labs(
-    title = "Average Mine Waste Volume by State",
-    x = "State",
-    y = "Mean Waste Volume"
+  kable(format = "html") %>%
+  kable_styling(
+    full_width = FALSE,
+    font_size = 10
   )
 ```
 
 ---
 
-# Something
+class: center, middle
+
+# Differences in Mining Waste per State (Plot)
 
 ---
 
-# Hello World
+.pull-right[
+```{r state-waste-log-plot, echo = FALSE}
+ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol, FUN = median),y = Calc_Vol)) +
+  geom_boxplot(fill = "darkgreen") +
+  scale_y_log10() +
+  theme_bw(base_size = 10) +
+  labs( title = "Mine Waste Volume by State (Log Scale)", x = "State", y = "Log10 Waste Volume")
+```
+]
 
-- Click the `Knit` button to compile your presentation
+.pull-left[
+```{r state-waste-regular, echo = FALSE}
+ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol, FUN = median), y = Calc_Vol)) + 
+  geom_boxplot(fill = "steelblue") + 
+  theme_bw(base_size = 10) + 
+  labs( title = "Mine Waste Volume Distribution by State", x = "State", y = "Waste Volume" )
+```
+]
+---
 
-- Make sure to commit and push all resulting files to your GitHub repo
+class: inverse, middle, center
+
+# Commodity Effects on Waste
+
+- Do certain mineral commodities produce more waste?
+
+---
+```{r commodity-data, echo=FALSE}
+# In this chunk I'm doing a bunch of analysis that I don't want to present 
+# in my slides. But I need the resulting data frame for a plot I want to present.
+Commodity_Data <- mining_clean %>%
+  separate_rows(Commodity, sep = ",|;") %>%
+  mutate(Commodity = trimws(Commodity)) %>%
+  mutate(Commodity = gsub("\\s*\\(.*\\)", "", Commodity)) %>%
+  group_by(Commodity) %>%
+  summarize(median_vol = median(Calc_Vol, na.rm = TRUE)) %>%
+  slice_max(median_vol, n = 20)
+```
+
+```{r commodity-plot, echo=FALSE}
+Commodity_Plot <- Commodity_Data %>%
+  ggplot(aes(x = reorder(Commodity, median_vol), y = median_vol)) +
+  geom_col(fill = "darkgreen") +
+  coord_flip() +
+  theme_bw() +
+  theme(text = element_text(family = "serif")) +
+  labs(
+    title = "Waste Volume by Commodity Mineral",
+    x = "Ore Mineral",
+    y = "Median Volume"
+  )
+
+Commodity_Plot
+```
 
 ---
 
 class: inverse, middle, center
 
-# Using xaringan
+# Gangue Minerals
+
+- Does surrounding geology influence waste volume?
 
 ---
 
-# xaringan
+```{r gangue-plot, echo=FALSE}
+Gangue_Plot <- mining_clean %>%
+  separate_rows(Gangue_Min, sep = ",|;") %>%
+  mutate(Gangue_Min = trimws(Gangue_Min)) %>%
+  mutate(Gangue_Min = gsub("\\s*\\(.*\\)", "", Gangue_Min)) %>%
+  group_by(Gangue_Min) %>%
+  summarize(mean_vol = mean(Calc_Vol, na.rm = TRUE)) %>%
+  slice_max(mean_vol, n = 15) %>%
+  ggplot(aes(x = reorder(Gangue_Min, mean_vol), y = mean_vol)) +
+  geom_col(fill = "brown") +
+  coord_flip() +
+  theme_bw() +
+  theme(text = element_text(family = "serif", size = 12)) +
+  labs(
+    title = "Waste Volume by Gangue Mineral",
+    x = "Gangue Mineral",
+    y = "Mean Volume"
+  )
 
-- The presentation is created using the `xaringan` package
-
-- Use `---` to separate slides and `--` for incremental builds
-
---
-
-- Like this
+Gangue_Plot
+```
 
 ---
 

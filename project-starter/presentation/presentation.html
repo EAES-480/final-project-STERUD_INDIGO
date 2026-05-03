@@ -6,6 +6,8 @@
     <meta name="author" content="Indigo Sterud" />
     <meta name="date" content="2026-05-03" />
     <script src="libs/header-attrs-2.31/header-attrs.js"></script>
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -38,36 +40,29 @@ class: center, middle, inverse, title-slide
 
 
 
-``` r
-style_xaringan(
-  title_slide_background_image = "img/Innovation-in-mining.jpg"
-)
-```
 
-
-class: center, middle
 
 ## Research Questions
 
+
 - Do certain mineral commodities produce more waste?
+
+--
+
 - Does geology (ore / gangue minerals) influence waste volume?
+
+--
+
 - Are there differences in waste production across states?
 
 ---
 
 ## Mining Data
-- Each row represents a mine waste feature
-- Volume = Calc_Vol (m³)
+- Columns represent different mine waste features for each Mine Location.
+- Ore_Min = commodity minerals
+- Gangue_Min = non-commodity minerals
 
-
-``` r
-mining_clean %&gt;%
-  select(Site_Name, state_abbr, Calc_Vol, Ore_Min, Gangue_Min) %&gt;%
-  head(10) %&gt;%
-  kable(format = "html")
-```
-
-&lt;table&gt;
+&lt;table class="table" style="font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
  &lt;thead&gt;
   &lt;tr&gt;
    &lt;th style="text-align:left;"&gt; Site_Name &lt;/th&gt;
@@ -153,43 +148,37 @@ mining_clean %&gt;%
 
 ---
 
-# State-Level Waste Patterns (Plot)
+# Waste Patterns by State (Plot)
 
 - Are there differences in waste production across states?
 
-
-
-&lt;img src="presentation_files/figure-html/plot-state-waste-1.png" alt="" width="100%" /&gt;
-
 ---
 
-# Something
 
----
 
-# Hello World
-
-- Click the `Knit` button to compile your presentation
-
-- Make sure to commit and push all resulting files to your GitHub repo
+&lt;img src="presentation_files/figure-html/plot-state-waste-1.png" alt="" width="80%" /&gt;
 
 ---
 
 class: inverse, middle, center
 
-# Using xaringan
+# Commodity Effects on Waste
+
+- Do certain mineral commodities produce more waste?
 
 ---
 
-# xaringan
+&lt;img src="presentation_files/figure-html/ore-plot-1.png" alt="" width="80%" /&gt;
 
-- The presentation is created using the `xaringan` package
+---
 
-- Use `---` to separate slides and `--` for incremental builds
+class: inverse, middle, center
 
---
+# Gangue Minerals
 
-- Like this
+- Does surrounding geology influence waste volume?
+
+&lt;img src="presentation_files/figure-html/gangue-plot-1.png" alt="" width="80%" /&gt;
 
 ---
 
@@ -248,7 +237,7 @@ glance(model)
 
 
 
-&lt;img src="presentation_files/figure-html/plot-iris-1.png" alt="" width="100%" /&gt;
+&lt;img src="presentation_files/figure-html/plot-iris-1.png" alt="" width="80%" /&gt;
 
 ---
 
