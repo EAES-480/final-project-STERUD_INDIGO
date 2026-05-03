@@ -1,7 +1,7 @@
 ---
-title: "Presentation title"
-subtitle: "Presentation subtitle (if any)"
-author: "Team name <br> Names of team members"
+title: "What Controls Mine Waste Volume in the U.S.?"
+subtitle: "A Geological Analysis using USGS NMWI Data"
+author: "Indigo Sterud"
 institute: "University of Illinois at Chicago"
 date: "`r Sys.Date()`"
 output:
@@ -17,39 +17,90 @@ output:
 
 ```{r load-packages, include = FALSE}
 # Add any additional packages you need to this chunk
+library(ggplot2)
 library(tidyverse)
 library(tidymodels)
 library(palmerpenguins)
 library(knitr)
 library(xaringanthemer)
+library(readr)
 ```
 
 ```{r setup, include=FALSE}
 # For better figure resolution
-knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 6, fig.asp = 0.618, out.width = "80%")
+knitr::opts_chunk$set(fig.retina = 3, dpi = 400, fig.width = 8, fig.asp = 0.618, out.width = "100%")
 ```
 
 ```{r load-data, include=FALSE}
-# Load your data here
+Waste_Geology <- read_csv("/cloud/project/project-starter/data/Waste_Geology.csv")
+Waste_Resources <- read_csv("/cloud/project/project-starter/data/Waste_Resources.csv")
+
+mining_df <- left_join(Waste_Resources, Waste_Geology, by = "Site_ID") %>%
+  rename(
+    Site_Name = Site_Name.x,
+    Site_Name_geo = Site_Name.y)
+
+mining_clean <- mining_df %>%
+  mutate(
+    state_abbr = substr(Site_ID, 1, 2),
+    state_name = state.name[match(state_abbr, state.abb)],
+    log_vol = log10(Calc_Vol + 1)
+  ) %>%
+  drop_na(Calc_Vol, Ore_Min)
 ```
 
 ```{r}
 style_xaringan(
-  title_slide_background_image = "img/confetti.jpg"
+  title_slide_background_image = "img/Innovation-in-mining.jpg"
 )
 ```
 
 
 class: center, middle
 
-## A statement of the overall goal / research question
+## Research Questions
+
+- Do certain mineral commodities produce more waste?
+- Does geology (ore / gangue minerals) influence waste volume?
+- Are there differences in waste production across states?
 
 ---
 
-class: inverse, center, middle
+## Mining Data
+- Each row represents a mine waste feature
+- Volume = Calc_Vol (m³)
 
-# Section title
+```{r glimpse-table}
+mining_clean %>%
+  select(Site_Name, state_abbr, Calc_Vol, Ore_Min, Gangue_Min) %>%
+  head(10) %>%
+  kable(format = "html")
+```
 
+---
+
+# State-Level Waste Patterns
+
+- Are there differences in waste production across states?
+
+```{r state-plot, echo=FALSE}
+state_summary <- mining_clean %>%
+  group_by(state_abbr) %>%
+  summarize(mean_vol = mean(log_vol, na.rm = TRUE))
+
+ggplot(state_summary, aes(x = reorder(state_abbr, mean_vol), y = mean_vol)) +
+  geom_col(fill = "steelblue") +
+  theme_classic() +
+  labs(
+    title = "Average Mine Waste Volume by State",
+    x = "State",
+    y = "Mean Log Volume"
+  )
+```
+
+---
+
+# Something
 ---
 
 # Hello World

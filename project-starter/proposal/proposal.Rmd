@@ -100,6 +100,8 @@ theme_classic(base_size = 18) +
 2. Is there a correlation between the type of tailings and the amount of waste produced at the site?
 3. Is there a correlation between the type of resource and size of mine?
 
+- Difference in mean volume of waste --> sites that have commodities (silver, gold)
+
 **Data analysis plan**
 
 The primary outcomes, or (Y) variables in this analysis will be mine waste volume (Calc_Vol) and material amounts (Mat_Amnt).
