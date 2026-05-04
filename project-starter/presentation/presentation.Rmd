@@ -60,27 +60,22 @@ style_xaringan(
 
 ## Research Questions
 
+- Are there differences in waste production across states?
+
+--
 
 - Do certain mineral commodities produce more waste?
-
---
-
-- Does geology (ore / gangue minerals) influence waste volume?
-
---
-
-- Are there differences in waste production across states?
 
 ---
 
 ## Mining Data
 - Columns represent different mine waste features for each Mine Location.
-- Ore_Min = commodity minerals
+- Commodity = Minerals mine factories want
 - Gangue_Min = non-commodity minerals
 
 ```{r glimpse-table, echo = FALSE}
 mining_clean %>%
-  select(Site_Name, state_abbr, Calc_Vol, Ore_Min, Gangue_Min) %>%
+  select(Site_Name, state_abbr, Calc_Vol, Commodity, Gangue_Min) %>%
   head(10) %>%
   kable(format = "html") %>%
   kable_styling(
@@ -93,7 +88,7 @@ mining_clean %>%
 
 class: center, middle
 
-## Differences in Calculating Mining Waste per State (Plot)
+## Differences in Calculating Mining Waste per State
 
 ---
 
@@ -109,16 +104,24 @@ ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol), y = Calc_Vol)) +
 ```
 
 ---
-
-##Using a log scale?
+##Using a log scale? Yes. Much Better.
 
 ```{r state-waste-log-plot, echo = FALSE, warning = FALSE}
 ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
-  geom_boxplot(fill = "darkgreen") +
+  geom_boxplot(fill = "pink") +
   scale_y_log10() +
   theme_bw(base_size = 10) +
   labs( title = "Mine Waste Volume by State (Log Scale)", x = "State", y = "Waste Volume(m^3)")
 ```
+
+---
+## Other notes on mining data
+
+1.) It is a giant compliaton of PUBLIC mining data across the US, compiled by USGS.
+
+2.) Does not represent the whole of mines across each state / resource, or private companies.
+
+3.) This already gives the data a lot of room for error.
 
 ---
 ```{r state-waste-bootstrap, Warning = FALSE, echo = TRUE}
@@ -144,8 +147,8 @@ ggplot(bootstrap_ci,
        aes(x = reorder(state_abbr, median_est),
            y = median_est)) +
   geom_col(fill = "steelblue") +
-  geom_errorbar(aes(ymin = lower, ymax = upper),
-                width = 0.2) +
+  scale_y_log10() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.35) +
   theme_bw(base_size = 12) +
   labs(
     title = "Bootstrapped Median Mine Waste Volume by State",
@@ -154,50 +157,34 @@ ggplot(bootstrap_ci,
   )
 
 ```
----
-## What's going on in Colorado?
 
-- Colorado has only 17 records compared to a state such as AZ that has 751 records. Of these records, most mines are very small (0E00), however some others are extremely large (2E08).
-
-```{r colorado-histogram}
-mining_colorado <- mining_clean %>%
-  filter(state_abbr == "CO")
-
-ggplot(mining_colorado, aes(x = Calc_Vol)) +
-  geom_histogram(fill = "steelblue", bins = 20) +
-  theme_bw(base_size = 12) +
-  labs(
-    title = "Bootstrap Distribution of Median Mine Waste Volume (Colorado)",
-    x = "Median Volume (Bootstrap Samples)",
-    y = "Frequency"
-  )
-
-count(mining_colorado)
-count(mining_clean, state_abbr = "AZ")
-```
 ---
 class: inverse, middle, center
 
-# Commodity Effects on Waste
+# Commodity Minerals and Waste
 
-- What is the relationship between the type of mineral commodities and the waste produced?
+- What is the relationship between the type of mineral and the amount of waste produced?
 
 ---
 ```{r commodity-data, echo=FALSE}
-# In this chunk I'm doing a bunch of analysis that I don't want to present 
-# in my slides. But I need the resulting data frame for a plot I want to present.
-Commodity_Data <- mining_clean %>%
+
+Commodity_Long <- mining_clean %>%
   separate_rows(Commodity, sep = ",|;") %>%
-  mutate(Commodity = trimws(Commodity)) %>%
-  mutate(Commodity = gsub("\\s*\\(.*\\)", "", Commodity)) %>%
+  mutate(
+    Commodity = trimws(Commodity),
+    Commodity = gsub("\\s*\\(.*\\)", "", Commodity)
+  )
+
+Top20 <- Commodity_Long %>%
   group_by(Commodity) %>%
   summarize(median_vol = median(Calc_Vol, na.rm = TRUE)) %>%
   slice_max(median_vol, n = 20)
+
 ```
 
 ```{r commodity-plot, echo=FALSE}
-Commodity_Plot <- Commodity_Data %>%
-  ggplot(aes(x = reorder(Commodity, median_vol), y = median_vol)) +
+
+ggplot(Top20, aes(x = reorder(Commodity, median_vol), y = median_vol)) +
   geom_col(fill = "darkgreen") +
   coord_flip() +
   theme_bw() +
@@ -208,19 +195,91 @@ Commodity_Plot <- Commodity_Data %>%
     y = "Median Volume (m^3)"
   )
 
-Commodity_Plot
+```
+
+- Tellurium is often harvested form large Mine Waste Locations
+
+- Gold is often associated with mines that are smaller scale and produce less waste.
+
+---
+## Commodity Scatterplot
+
+Silver, Molybdenum, Gold and Copper are the most prevalent.
+
+```{r commodity-scatter, echo=FALSE, warning=FALSE}
+
+Commodity_Filtered <- Commodity_Long %>%
+  filter(Commodity %in% Top20$Commodity, Calc_Vol > 0)
+
+ggplot(Commodity_Filtered, aes(x = Commodity, y = Calc_Vol, color = Commodity)) +
+  geom_jitter(alpha = 0.6, width = 0.2) +
+  coord_flip() +
+  scale_y_log10() +
+  theme_bw() +
+  theme(text = element_text(family = "serif"),
+        legend.position = "none") +
+  labs(
+    title = "Mine Waste Volume by Commodity Mineral (Individual Sites)",
+    x = "Commodity Mineral",
+    y = "Waste Volume (m^3)"
+  )
+
 ```
 ---
 
+- The most amount of mine locations contained copper.
+
+- The least amount of mine locations contained silver.
+
+- All had roughly the same shape, probably meaning they were found alot of the same sites.
+
+- All had roughly the same median amount of waste volume at the sites they were harvested (1E07)
+
+```{r commodity-hist, echo=FALSE, warning=FALSE}
+ggplot(
+  Commodity_Long %>%
+    mutate(Commodity = trimws(Commodity)) %>%
+    filter(Commodity %in% c("gold", "copper", "molybdenum", "silver"), Calc_Vol > 0),
+  aes(x = log10(Calc_Vol), fill = Commodity) +
+  geom_histogram(alpha = 0.35, bins = 15) +
+  theme_bw() +
+  scale_fill_manual(values = c(
+    "gold" = "#E69F00",
+    "copper" = "#D55E00",
+    "silver" = "grey",
+    "molybdenum" = "steelblue")) +
+  labs(
+    title = "Distribution of Mine Waste Volume by Commodity",
+    x = "log10(Waste Volume (m^3))",
+    y = "Count",
+    fill = "Commodity")
+
+```
+---
+## ANOVA test for Commodity Minerals
+
+- What does this mean??
+
+```{r anova-commodity, echo=FALSE, warning=FALSE}
+anova_model <- aov(
+  log10(Calc_Vol) ~ Commodity,
+  data = Commodity_Long %>%
+    filter(Commodity %in% Top20$Commodity, Calc_Vol > 0)
+)
+
+summary(anova_model)
+```
+
+---
 class: inverse, middle, center
 
 # Gangue Minerals
 
-- Does surrounding geology influence waste volume?
+- What "economically undesireable" minerals are observed in high-waste sites?
 
 ---
 
-- Stilbite and Apophyllite are the most common Gangue Minerals present in high waste volume sites.
+- Stilbite and Apophyllite are the most common Gangue Minerals identified from high waste volume sites.
 
 ```{r gangue-plot, echo=FALSE}
 Gangue_Plot_Data <- mining_clean %>%
@@ -248,61 +307,10 @@ Gangue_Plot
 
 ---
 
-# Code
+# Stillbite
 
-```{r boring-regression}
-# a boring regression
-model <- lm(dist ~ speed, data = cars)
-tidy(model)
-glance(model)
-```
-
----
-
-# Plots
-
-```{r recode-species, echo = FALSE}
-# In this chunk I'm doing a bunch of analysis that I don't want to present 
-# in my slides. But I need the resulting data frame for a plot I want to present.
-iris_modified <- iris %>%
-  mutate(Species = fct_other(Species, keep = "setosa"))
-```
-
-```{r plot-iris, echo = FALSE}
-# Code hidden with echo = FALSE
-# Uses modified iris dataset from previous chunk
-# Play around with height and width until you're happy with the look
-ggplot(data = iris_modified, mapping = aes(x = Sepal.Width, y = Sepal.Length, color = Species)) +
-  geom_point() + 
-  theme_minimal() # theme options: https://ggplot2.tidyverse.org/reference/ggtheme.html
-```
-
----
-
-## Plot and text
-
-.pull-left[
-- Some text
-- goes here
-]
-.pull-right[
-```{r warning=FALSE, out.width="100%", fig.width=4, echo=FALSE}
-# see how I changed out.width and fig.width from defaults
-# to make the figure bigger
-ggplot(penguins, aes(x = bill_length_mm, y = species, color = species)) +
-  geom_boxplot() +
-  theme_minimal()
-```
-]
-
----
-
-# Tables
-
-If you want to generate a table, make sure it is in the HTML format (instead of Markdown or other formats), e.g.,
-
-```{r iris-table, echo = FALSE}
-kable(head(iris), format = "html")
+```{r stillbite, echo = FALSE, out.width = "60%", fig.align = "center", fig.cap = "Image credit: Photo by Enjoy Illinois."}
+include_graphics("img/chicago-fall.jpeg")
 ```
 
 ---
