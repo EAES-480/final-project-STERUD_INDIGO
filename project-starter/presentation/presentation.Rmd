@@ -124,7 +124,8 @@ ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
 3.) This already gives the data a lot of room for error.
 
 ---
-```{r state-waste-bootstrap, Warning = FALSE, echo = TRUE}
+Bootstrapping helps to normalize sample amounts since some states have less mine data than others.
+```{r state-waste-bootstrap, Warning = FALSE, echo = FALSE}
 set.seed(100)
 bootstrap_state <- mining_clean %>%
   group_by(state_abbr) %>%
@@ -161,7 +162,7 @@ ggplot(bootstrap_ci,
 ---
 class: inverse, middle, center
 
-# Commodity Minerals and Waste
+## Commodity Minerals and Waste
 
 - What is the relationship between the type of mineral and the amount of waste produced?
 
@@ -190,21 +191,21 @@ ggplot(Top20, aes(x = reorder(Commodity, median_vol), y = median_vol)) +
   theme_bw() +
   theme(text = element_text(family = "serif")) +
   labs(
-    title = "Median sizes of Mines for identified Commodity Minerals",
+    title = "Median Waste amt. where Commodity Minerals were Found",
     x = "Commodity Mineral",
     y = "Median Volume (m^3)"
   )
 
 ```
 
-- Tellurium is often harvested form large Mine Waste Locations
+- Tellurium is often harvested from large Mine Waste Locations
 
 - Gold is often associated with mines that are smaller scale and produce less waste.
 
 ---
-## Commodity Scatterplot
+# Commodity Scatterplot
 
-Silver, Molybdenum, Gold and Copper are the most prevalent.
+*Silver, Molybdenum, Gold and Copper* are the most prevalent.
 
 ```{r commodity-scatter, echo=FALSE, warning=FALSE}
 
@@ -240,7 +241,7 @@ ggplot(
   Commodity_Long %>%
     mutate(Commodity = trimws(Commodity)) %>%
     filter(Commodity %in% c("gold", "copper", "molybdenum", "silver"), Calc_Vol > 0),
-  aes(x = log10(Calc_Vol), fill = Commodity) +
+  aes(x = log10(Calc_Vol), fill = Commodity)) +
   geom_histogram(alpha = 0.35, bins = 15) +
   theme_bw() +
   scale_fill_manual(values = c(
