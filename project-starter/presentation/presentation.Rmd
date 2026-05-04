@@ -1,5 +1,5 @@
 ---
-title: "What Controls Mine Waste Volume in the U.S.?"
+title: "Mine Waste in the U.S."
 subtitle: "A Geological Analysis using USGS NMWI Data"
 author: "Indigo Sterud"
 institute: "University of Illinois at Chicago"
@@ -25,6 +25,7 @@ library(knitr)
 library(xaringanthemer)
 library(readr)
 library(kableExtra)
+library(purrr)
 ```
 
 ```{r setup, include=FALSE}
@@ -92,35 +93,95 @@ mining_clean %>%
 
 class: center, middle
 
-# Differences in Mining Waste per State (Plot)
+# Differences in Calculating Mining Waste per State (Plot)
 
 ---
-
-.pull-right[
-```{r state-waste-log-plot, echo = FALSE}
-ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol, FUN = median),y = Calc_Vol)) +
-  geom_boxplot(fill = "darkgreen") +
-  scale_y_log10() +
-  theme_bw(base_size = 10) +
-  labs( title = "Mine Waste Volume by State (Log Scale)", x = "State", y = "Log10 Waste Volume")
-```
-]
+.pull-right[Using standard Volumes]
 
 .pull-left[
 ```{r state-waste-regular, echo = FALSE}
-ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol, FUN = median), y = Calc_Vol)) + 
+ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol), y = Calc_Vol)) + 
   geom_boxplot(fill = "steelblue") + 
   theme_bw(base_size = 10) + 
-  labs( title = "Mine Waste Volume Distribution by State", x = "State", y = "Waste Volume" )
+  labs( title = "Mine Waste Volume Distribution by State", x = "State", y = "Waste Volume (m^3)" )
+```
+]
+
+---
+.pull-left[
+Using a log scale
+]
+
+.pull-right[
+```{r state-waste-log-plot, echo = FALSE, warning = FALSE}
+ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
+  geom_boxplot(fill = "darkgreen") +
+  scale_y_log10() +
+  theme_bw(base_size = 10) +
+  labs( title = "Mine Waste Volume by State (Log Scale)", x = "State", y = "Waste Volume(m^3)")
 ```
 ]
 ---
+```{r state-waste-bootstrap, Warning = FALSE, echo = TRUE}
+set.seed(100)
+bootstrap_state <- mining_clean %>%
+  group_by(state_abbr) %>%
+  summarize(
+    boot_median = list(
+      replicate(1000,
+        median(sample(Calc_Vol, replace = TRUE), na.rm = TRUE)
+      )
+    )
+  )
 
+bootstrap_ci <- bootstrap_state %>%
+  mutate(
+    median_est = map_dbl(boot_median, median),
+    lower = map_dbl(boot_median, ~quantile(.x, 0.025)),
+    upper = map_dbl(boot_median, ~quantile(.x, 0.975))
+  )
+
+ggplot(bootstrap_ci,
+       aes(x = reorder(state_abbr, median_est),
+           y = median_est)) +
+  geom_col(fill = "steelblue") +
+  geom_errorbar(aes(ymin = lower, ymax = upper),
+                width = 0.2) +
+  theme_bw(base_size = 12) +
+  labs(
+    title = "Bootstrapped Median Mine Waste Volume by State",
+    x = "State",
+    y = "Median Volume"
+  )
+
+```
+---
+## What's going on in Colorado?
+
+- Colorado has only 17 records compared to a state such as AZ that has 751 records. Of these records, most mines are very small (0E00), however some others are extremely large (2E08).
+
+```{r colorado-histogram}
+mining_colorado <- mining_clean %>%
+  filter(state_abbr == "CO")
+
+ggplot(mining_colorado, aes(x = Calc_Vol)) +
+  geom_histogram(fill = "steelblue", bins = 20) +
+  theme_bw(base_size = 12) +
+  labs(
+    title = "Bootstrap Distribution of Median Mine Waste Volume (Colorado)",
+    x = "Median Volume (Bootstrap Samples)",
+    y = "Frequency"
+  )
+
+count(mining_colorado)
+count(mining_clean, state_abbr = "AZ")
+```
+---
 class: inverse, middle, center
 
 # Commodity Effects on Waste
 
-- Do certain mineral commodities produce more waste?
+- What is the relationship between the type of mineral commodities and the waste produced?
 
 ---
 ```{r commodity-data, echo=FALSE}
@@ -143,14 +204,13 @@ Commodity_Plot <- Commodity_Data %>%
   theme_bw() +
   theme(text = element_text(family = "serif")) +
   labs(
-    title = "Waste Volume by Commodity Mineral",
-    x = "Ore Mineral",
-    y = "Median Volume"
+    title = "Median sizes of Mines for identified Commodity Minerals",
+    x = "Commodity Mineral",
+    y = "Median Volume (m^3)"
   )
 
 Commodity_Plot
 ```
-
 ---
 
 class: inverse, middle, center
@@ -161,47 +221,31 @@ class: inverse, middle, center
 
 ---
 
+- Stilbite and Apophyllite are the most common Gangue Minerals present in high waste volume sites.
+
 ```{r gangue-plot, echo=FALSE}
-Gangue_Plot <- mining_clean %>%
+Gangue_Plot_Data <- mining_clean %>%
   separate_rows(Gangue_Min, sep = ",|;") %>%
   mutate(Gangue_Min = trimws(Gangue_Min)) %>%
   mutate(Gangue_Min = gsub("\\s*\\(.*\\)", "", Gangue_Min)) %>%
   group_by(Gangue_Min) %>%
   summarize(mean_vol = mean(Calc_Vol, na.rm = TRUE)) %>%
-  slice_max(mean_vol, n = 15) %>%
+  slice_max(mean_vol, n = 15)
+
+Gangue_Plot <- Gangue_Plot_Data %>%
   ggplot(aes(x = reorder(Gangue_Min, mean_vol), y = mean_vol)) +
   geom_col(fill = "brown") +
   coord_flip() +
   theme_bw() +
   theme(text = element_text(family = "serif", size = 12)) +
   labs(
-    title = "Waste Volume by Gangue Mineral",
+    title = "Size of Mine and Gangue Minerals Identified",
     x = "Gangue Mineral",
     y = "Mean Volume"
   )
 
 Gangue_Plot
 ```
-
----
-
-# Layouts
-
-You can use plain text
-
-- or bullet points
-
-.pull-left[
-or text in two columns $^*$
-]
-.pull-right[
-- like
-- this
-]
-
-.footnote[
-[*] And add footnotes
-]
 
 ---
 
