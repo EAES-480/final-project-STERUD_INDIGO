@@ -93,26 +93,25 @@ mining_clean %>%
 
 class: center, middle
 
-# Differences in Calculating Mining Waste per State (Plot)
+## Differences in Calculating Mining Waste per State (Plot)
 
 ---
-.pull-right[Using standard Volumes]
 
-.pull-left[
+Arizona and Utah have large outliers...
+
+- This reveals that using medians instead of means will be more beneficial in preventing skewed data.
+
 ```{r state-waste-regular, echo = FALSE}
 ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol), y = Calc_Vol)) + 
   geom_boxplot(fill = "steelblue") + 
-  theme_bw(base_size = 10) + 
+  theme_bw(base_size = 12) + 
   labs( title = "Mine Waste Volume Distribution by State", x = "State", y = "Waste Volume (m^3)" )
 ```
-]
 
 ---
-.pull-left[
-Using a log scale
-]
 
-.pull-right[
+##Using a log scale?
+
 ```{r state-waste-log-plot, echo = FALSE, warning = FALSE}
 ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
   geom_boxplot(fill = "darkgreen") +
@@ -120,7 +119,7 @@ ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
   theme_bw(base_size = 10) +
   labs( title = "Mine Waste Volume by State (Log Scale)", x = "State", y = "Waste Volume(m^3)")
 ```
-]
+
 ---
 ```{r state-waste-bootstrap, Warning = FALSE, echo = TRUE}
 set.seed(100)

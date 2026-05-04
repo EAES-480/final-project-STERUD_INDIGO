@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>What Controls Mine Waste Volume in the U.S.?</title>
+    <title>Mine Waste in the U.S.</title>
     <meta charset="utf-8" />
     <meta name="author" content="Indigo Sterud" />
-    <meta name="date" content="2026-05-03" />
+    <meta name="date" content="2026-05-04" />
     <script src="libs/header-attrs-2.31/header-attrs.js"></script>
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
@@ -15,7 +15,7 @@
 class: center, middle, inverse, title-slide
 
 .title[
-# What Controls Mine Waste Volume in the U.S.?
+# Mine Waste in the U.S.
 ]
 .subtitle[
 ## A Geological Analysis using USGS NMWI Data
@@ -27,7 +27,7 @@ class: center, middle, inverse, title-slide
 ### University of Illinois at Chicago
 ]
 .date[
-### 2026-05-03
+### 2026-05-04
 ]
 
 ---
@@ -150,25 +150,108 @@ class: center, middle, inverse, title-slide
 
 class: center, middle
 
-# Differences in Mining Waste per State (Plot)
+# Differences in Calculating Mining Waste per State (Plot)
 
 ---
-
-.pull-right[
-&lt;img src="presentation_files/figure-html/state-waste-log-plot-1.png" alt="" width="80%" /&gt;
-]
+.pull-right[Using standard Volumes]
 
 .pull-left[
 &lt;img src="presentation_files/figure-html/state-waste-regular-1.png" alt="" width="80%" /&gt;
 ]
 
 ---
+.pull-left[
+Using a log scale
+]
 
+.pull-right[
+&lt;img src="presentation_files/figure-html/state-waste-log-plot-1.png" alt="" width="80%" /&gt;
+]
+---
+
+``` r
+set.seed(100)
+bootstrap_state &lt;- mining_clean %&gt;%
+  group_by(state_abbr) %&gt;%
+  summarize(
+    boot_median = list(
+      replicate(1000,
+        median(sample(Calc_Vol, replace = TRUE), na.rm = TRUE)
+      )
+    )
+  )
+
+bootstrap_ci &lt;- bootstrap_state %&gt;%
+  mutate(
+    median_est = map_dbl(boot_median, median),
+    lower = map_dbl(boot_median, ~quantile(.x, 0.025)),
+    upper = map_dbl(boot_median, ~quantile(.x, 0.975))
+  )
+
+ggplot(bootstrap_ci,
+       aes(x = reorder(state_abbr, median_est),
+           y = median_est)) +
+  geom_col(fill = "steelblue") +
+  geom_errorbar(aes(ymin = lower, ymax = upper),
+                width = 0.2) +
+  theme_bw(base_size = 12) +
+  labs(
+    title = "Bootstrapped Median Mine Waste Volume by State",
+    x = "State",
+    y = "Median Volume"
+  )
+```
+
+&lt;img src="presentation_files/figure-html/state-waste-bootstrap-1.png" alt="" width="80%" /&gt;
+---
+## What's going on in Colorado?
+
+- Colorado has only 17 records compared to a state such as AZ that has 751 records. Of these records, most mines are very small (0E00), however some others are extremely large (2E08).
+
+
+``` r
+mining_colorado &lt;- mining_clean %&gt;%
+  filter(state_abbr == "CO")
+
+ggplot(mining_colorado, aes(x = Calc_Vol)) +
+  geom_histogram(fill = "steelblue", bins = 20) +
+  theme_bw(base_size = 12) +
+  labs(
+    title = "Bootstrap Distribution of Median Mine Waste Volume (Colorado)",
+    x = "Median Volume (Bootstrap Samples)",
+    y = "Frequency"
+  )
+```
+
+&lt;img src="presentation_files/figure-html/colorado-histogram-1.png" alt="" width="80%" /&gt;
+
+``` r
+count(mining_colorado)
+```
+
+```
+## # A tibble: 1 × 1
+##       n
+##   &lt;int&gt;
+## 1    17
+```
+
+``` r
+count(mining_clean, state_abbr = "AZ")
+```
+
+```
+## # A tibble: 1 × 2
+##   state_abbr     n
+##   &lt;chr&gt;      &lt;int&gt;
+## 1 AZ           751
+```
+---
 class: inverse, middle, center
 
 # Commodity Effects on Waste
 
-- Do certain mineral commodities produce more waste?
+- What is the relationship between the type of mineral commodities and the waste produced?
 
 ---
 
@@ -184,27 +267,9 @@ class: inverse, middle, center
 
 ---
 
+- Stilbite and Apophyllite are the most common Gangue Minerals present in high waste volume sites.
+
 &lt;img src="presentation_files/figure-html/gangue-plot-1.png" alt="" width="80%" /&gt;
-
----
-
-# Layouts
-
-You can use plain text
-
-- or bullet points
-
-.pull-left[
-or text in two columns `\(^*\)`
-]
-.pull-right[
-- like
-- this
-]
-
-.footnote[
-[*] And add footnotes
-]
 
 ---
 
