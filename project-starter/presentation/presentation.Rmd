@@ -25,6 +25,7 @@ library(xaringanthemer)
 library(readr)
 library(kableExtra)
 library(purrr)
+library(here)
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
@@ -34,8 +35,7 @@ style_solarized_light(text_color = "gray31",
   background_color = "#fdf6e3",
   link_color = "#b58900",
   text_bold_color = "#d33682",
-  text_slide_number_color = "#93a1a1",
-  title_slide_background_image = "img/Innovation-in-mining.jpg")
+  text_slide_number_color = "#93a1a1")
 ```
 
 ```{r setup, include=FALSE}
@@ -44,8 +44,8 @@ knitr::opts_chunk$set(fig.retina = 3, dpi = 300, fig.width = 6, fig.asp = 0.618,
 ```
 
 ```{r load-data, include=FALSE}
-Waste_Geology <- read_csv("/cloud/project/project-starter/data/Waste_Geology.csv")
-Waste_Resources <- read_csv("/cloud/project/project-starter/data/Waste_Resources.csv")
+Waste_Geology <- read_csv(here::here("project-starter", "data", "Waste_Geology.csv"))
+Waste_Resources <- read_csv(here::here("project-starter", "data", "Waste_Resources.csv"))
 
 mining_df <- left_join(Waste_Resources, Waste_Geology, by = "Site_ID") %>%
   rename(
@@ -55,9 +55,10 @@ mining_df <- left_join(Waste_Resources, Waste_Geology, by = "Site_ID") %>%
 mining_clean <- mining_df %>%
   mutate(
     state_abbr = substr(Site_ID, 1, 2),
-    state_name = state.name[match(state_abbr, state.abb)],
-    log_vol = log10(Calc_Vol + 1)
+    state_name = state.name[match(state_abbr, state.abb)]
   ) %>%
+  filter(!is.na(Calc_Vol), Calc_Vol > 0) %>%
+  mutate(log_vol = log10(Calc_Vol)) %>%
   drop_na(Calc_Vol, Ore_Min)
 ```
 
@@ -90,15 +91,18 @@ mining_clean %>%
 
 ---
 ## Waste Volume Basics
-
-```{r extra-stuff, echo = FALSE, warning = FALSE}
-ggplot(mining_clean, aes(x = Calc_Vol)) + geom_histogram(bins = 20) + scale_x_log10() + theme_bw() +
-  theme(text = element_text(family = "Comic Sans")) +
+```{r extra-stuff, echo = FALSE}
+ggplot(mining_clean %>% filter(Calc_Vol > 0), aes(x = Calc_Vol)) + 
+  geom_histogram(bins = 20) + 
+  scale_x_log10() + 
+  theme_bw() +
   labs(
     title = "Distribution of Waste Volumes",
     x = "log10(Waste Volume (m^3))",
-    y = "Count")
+    y = "Count"
+  )
 ```
+
 ---
 
 class: center, middle
@@ -109,7 +113,7 @@ class: center, middle
 class: center, middle
 **Arizona and Utah have large outliers...**
 
-This plot does not calculate for log(WasteVolume), showing the extremely large outliers in places like UT and CO, creating a strong right skew to all of the data. For this reason, I used log scaling on all of my statistical analyses.
+This plot does not calculate for log(WasteVolume), showing the extremely large outliers in places like AZ and UT, creating a strong right skew to all of the data. For this reason, I used log scaling on all of my statistical analyses.
 
 ```{r state-waste-regular, echo = FALSE}
 ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol), y = Calc_Vol)) + 
@@ -145,13 +149,13 @@ ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
 
 **Bootstrapping** helps since some states have more mining sites than others.
 
-```{r state-waste-bootstrap, Warning = FALSE, echo = FALSE}
+```{r state-waste-bootstrap, warning = FALSE, echo = FALSE}
 set.seed(100)
 bootstrap_state <- mining_clean %>%
   group_by(state_abbr) %>%
   summarize(
     boot_median = list(
-      replicate(1000,
+      replicate(500,
         median(sample(Calc_Vol, replace = TRUE), na.rm = TRUE))
     )
   )
@@ -173,7 +177,6 @@ ggplot(bootstrap_ci,aes(x = reorder(state_abbr, median_est), y = median_est)) +
     x = "State",
     y = "Median Volume"
   )
-
 ```
 ---
 ## ANOVA test Waste Volumes by State
@@ -189,7 +192,7 @@ class: inverse, middle, center
 
 ## Commodity Minerals and Waste
 
-- What is the relationship between the type of mineral and the amount of waste produced?
+What is the relationship between the type of mineral and the amount of waste produced?
 
 ---
 ```{r commodity-data, echo=FALSE}
@@ -230,7 +233,7 @@ ggplot(Top20, aes(x = reorder(Commodity, median_vol), y = median_vol)) +
 ---
 # Commodity Scatterplot
 
-*Silver, Molybdenum, Gold and Copper* are the most prevalent.
+**Silver, Molybdenum, Gold and Copper** are the most prevalent.
 
 ```{r commodity-scatter, echo=FALSE, warning=FALSE}
 
@@ -296,18 +299,3 @@ summary(anova_model)
 ---
 
 # Thanks!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

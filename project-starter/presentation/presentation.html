@@ -4,7 +4,7 @@
     <title>Mine Waste in the U.S.</title>
     <meta charset="utf-8" />
     <meta name="author" content="Indigo Sterud" />
-    <meta name="date" content="2026-05-04" />
+    <meta name="date" content="2026-05-05" />
     <script src="libs/header-attrs-2.31/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
@@ -28,7 +28,7 @@ class: center, middle, inverse, title-slide
 ### University of Illinois at Chicago
 ]
 .date[
-### 2026-05-04
+### 2026-05-05
 ]
 
 ---
@@ -142,6 +142,10 @@ class: center, middle, inverse, title-slide
 &lt;/table&gt;
 
 ---
+## Waste Volume Basics
+&lt;img src="presentation_files/figure-html/extra-stuff-1.png" alt="" width="80%" /&gt;
+
+---
 
 class: center, middle
 
@@ -151,7 +155,7 @@ class: center, middle
 class: center, middle
 **Arizona and Utah have large outliers...**
 
-This reveals that using medians instead of means will be more beneficial in preventing skewed data, as well as using a log scale.
+This plot does not calculate for log(WasteVolume), showing the extremely large outliers in places like UT and CO, creating a strong right skew to all of the data. For this reason, I used log scaling on all of my statistical analyses.
 
 &lt;img src="presentation_files/figure-html/state-waste-regular-1.png" alt="" width="80%" /&gt;
 
@@ -163,7 +167,7 @@ This reveals that using medians instead of means will be more beneficial in prev
 ---
 ## Other notes on mining data
 
-1.) It is a giant compliaton of PUBLIC mining data across the US, compiled by USGS.
+1.) It is a giant compilaton of PUBLIC mining data across the US, compiled by USGS.
 
 
 2.) Does not represent the whole of mines across each state / resource, especially private companies.
@@ -177,7 +181,18 @@ This reveals that using medians instead of means will be more beneficial in prev
 **Bootstrapping** helps since some states have more mining sites than others.
 
 &lt;img src="presentation_files/figure-html/state-waste-bootstrap-1.png" alt="" width="80%" /&gt;
+---
+## ANOVA test Waste Volumes by State
+Using a logarithmic calculation, the Pr(&gt;F) of &lt;2e-16 reveals that there is at least one state of 10 that differ significantly from the others. Also, the large F-value (107.1) indicates that differences between states are much greater than variability within individual states.
 
+
+```
+##              Df Sum Sq Mean Sq F value Pr(&gt;F)    
+## state_abbr   10  821.0   82.10   107.1 &lt;2e-16 ***
+## Residuals   726  556.4    0.77                   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
 ---
 class: inverse, middle, center
 
@@ -230,12 +245,13 @@ summary(anova_model)
 ## Residuals   2033   2537   1.248                   
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 52 observations deleted due to missingness
 ```
 
 ---
 
 # Thanks!
+
+---
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

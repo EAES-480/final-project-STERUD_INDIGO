@@ -43,7 +43,7 @@
   --header-h3-font-size: 1.75rem;
 
   /* Colors */
-  --text-color: #657b83;
+  --text-color: gray31;
   --header-color: #dc322f;
   --background-color: #fdf6e3;
   --link-color: #b58900;
@@ -137,6 +137,8 @@ a, a > code {
 }
 .title-slide {
   background-color: var(--title-slide-background-color);
+  background-image: url("img/Innovation-in-mining.jpg");
+  background-size: cover;
 }
 .title-slide .remark-slide-number {
   display: none;
