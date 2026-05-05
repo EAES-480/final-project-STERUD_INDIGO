@@ -1,8 +1,12 @@
-Project title
+Mine Waste in the United States
 ================
-by Team name
+by Indigo Sterud
 
 ## Summary
+
+I decided to run statistical analyses on National Mine Waste Inventory (NMWI) 
+data because I was interested on discovering if specific minerals or states 
+displayed relationships with the volume of waste produced at mining sites.
 
 Write-up of your project and findings go here. Think of this as the text
 of your presentation. The length should be roughly 5 minutes when read

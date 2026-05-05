@@ -89,6 +89,17 @@ mining_clean %>%
 ```
 
 ---
+## Waste Volume Basics
+
+```{r extra-stuff, echo = FALSE, warning = FALSE}
+ggplot(mining_clean, aes(x = Calc_Vol)) + geom_histogram(bins = 20) + scale_x_log10() + theme_bw() +
+  theme(text = element_text(family = "Comic Sans")) +
+  labs(
+    title = "Distribution of Waste Volumes",
+    x = "log10(Waste Volume (m^3))",
+    y = "Count")
+```
+---
 
 class: center, middle
 
@@ -98,7 +109,7 @@ class: center, middle
 class: center, middle
 **Arizona and Utah have large outliers...**
 
-This reveals that using medians instead of means will be more beneficial in preventing skewed data, as well as using a log scale.
+This plot does not calculate for log(WasteVolume), showing the extremely large outliers in places like UT and CO, creating a strong right skew to all of the data. For this reason, I used log scaling on all of my statistical analyses.
 
 ```{r state-waste-regular, echo = FALSE}
 ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol), y = Calc_Vol)) + 
@@ -121,7 +132,7 @@ ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
 ---
 ## Other notes on mining data
 
-1.) It is a giant compliaton of PUBLIC mining data across the US, compiled by USGS.
+1.) It is a giant compilaton of PUBLIC mining data across the US, compiled by USGS.
 
 
 2.) Does not represent the whole of mines across each state / resource, especially private companies.
@@ -141,8 +152,7 @@ bootstrap_state <- mining_clean %>%
   summarize(
     boot_median = list(
       replicate(1000,
-        median(sample(Calc_Vol, replace = TRUE), na.rm = TRUE)
-      )
+        median(sample(Calc_Vol, replace = TRUE), na.rm = TRUE))
     )
   )
 
@@ -153,9 +163,7 @@ bootstrap_ci <- bootstrap_state %>%
     upper = map_dbl(boot_median, ~quantile(.x, 0.975))
   )
 
-ggplot(bootstrap_ci,
-       aes(x = reorder(state_abbr, median_est),
-           y = median_est)) +
+ggplot(bootstrap_ci,aes(x = reorder(state_abbr, median_est), y = median_est)) +
   geom_col(fill = "steelblue") +
   scale_y_log10() +
   geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.35) +
@@ -167,7 +175,15 @@ ggplot(bootstrap_ci,
   )
 
 ```
+---
+## ANOVA test Waste Volumes by State
+Using a logarithmic calculation, the Pr(>F) of <2e-16 reveals that there is at least one state of 10 that differ significantly from the others. Also, the large F-value (107.1) indicates that differences between states are much greater than variability within individual states.
 
+```{r anova-state, echo=FALSE, warning=FALSE}
+anova_model_1 <- aov(log_vol ~ state_abbr, data = mining_clean)
+
+summary(anova_model_1)
+```
 ---
 class: inverse, middle, center
 
@@ -200,7 +216,7 @@ ggplot(Top20, aes(x = reorder(Commodity, median_vol), y = median_vol)) +
   theme_bw() +
   theme(text = element_text(family = "serif")) +
   labs(
-    title = "Median Waste amt. where Commodity Minerals were Found",
+    title = "Median Waste Volume for Commodity Minerals Identified",
     x = "Commodity Mineral",
     y = "Median Volume (m^3)"
   )
@@ -280,3 +296,18 @@ summary(anova_model)
 ---
 
 # Thanks!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
