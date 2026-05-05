@@ -6,15 +6,14 @@ institute: "University of Illinois at Chicago"
 date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
-    css: xaringan-themer.css
     lib_dir: libs
+    css: ["default", "xaringan-themer.css"]
     nature:
       ratio: "16:9"
-      highlightStyle: github
+      highlightStyle: solarized-light
       highlightLines: true
       countIncrementalSlides: false
 ---
-
 ```{r load-packages, include = FALSE}
 # Add any additional packages you need to this chunk
 library(ggplot2)
@@ -26,6 +25,17 @@ library(xaringanthemer)
 library(readr)
 library(kableExtra)
 library(purrr)
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_solarized_light(text_color = "gray31",
+  header_color = "#dc322f",
+  background_color = "#fdf6e3",
+  link_color = "#b58900",
+  text_bold_color = "#d33682",
+  text_slide_number_color = "#93a1a1",
+  title_slide_background_image = "img/Innovation-in-mining.jpg")
 ```
 
 ```{r setup, include=FALSE}
@@ -51,12 +61,6 @@ mining_clean <- mining_df %>%
   drop_na(Calc_Vol, Ore_Min)
 ```
 
-```{r, echo = FALSE}
-style_xaringan(
-  title_slide_background_image = "img/Innovation-in-mining.jpg"
-)
-```
-
 
 ## Research Questions
 
@@ -69,7 +73,7 @@ style_xaringan(
 ---
 
 ## Mining Data
-- Columns represent different mine waste features for each Mine Location.
+- Columns represent different mine waste features for each mine location.
 - Commodity = Minerals mine factories want
 - Gangue_Min = non-commodity minerals
 
@@ -91,10 +95,10 @@ class: center, middle
 ## Differences in Calculating Mining Waste per State
 
 ---
+class: center, middle
+**Arizona and Utah have large outliers...**
 
-Arizona and Utah have large outliers...
-
-- This reveals that using medians instead of means will be more beneficial in preventing skewed data.
+This reveals that using medians instead of means will be more beneficial in preventing skewed data, as well as using a log scale.
 
 ```{r state-waste-regular, echo = FALSE}
 ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol), y = Calc_Vol)) + 
@@ -111,7 +115,7 @@ ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
   geom_boxplot(fill = "pink") +
   scale_y_log10() +
   theme_bw(base_size = 10) +
-  labs( title = "Mine Waste Volume by State (Log Scale)", x = "State", y = "Waste Volume(m^3)")
+  labs( title = "Mine Waste Volumes by State (Log Scale)", x = "State", y = "Waste Volume(m^3)")
 ```
 
 ---
@@ -119,12 +123,17 @@ ggplot(mining_clean, aes(x = reorder(state_abbr, Calc_Vol),y = Calc_Vol)) +
 
 1.) It is a giant compliaton of PUBLIC mining data across the US, compiled by USGS.
 
-2.) Does not represent the whole of mines across each state / resource, or private companies.
+
+2.) Does not represent the whole of mines across each state / resource, especially private companies.
+
 
 3.) This already gives the data a lot of room for error.
 
+
 ---
-Bootstrapping helps to normalize sample amounts since some states have less mine data than others.
+
+**Bootstrapping** helps since some states have more mining sites than others.
+
 ```{r state-waste-bootstrap, Warning = FALSE, echo = FALSE}
 set.seed(100)
 bootstrap_state <- mining_clean %>%
@@ -228,13 +237,11 @@ ggplot(Commodity_Filtered, aes(x = Commodity, y = Calc_Vol, color = Commodity)) 
 ```
 ---
 
-- The most amount of mine locations contained copper.
+1.) The most amount of mine locations contained copper, the least amount of mine locations contained silver.
 
-- The least amount of mine locations contained silver.
+2.) All had roughly the same shape, probably meaning they were found many of the same sites.
 
-- All had roughly the same shape, probably meaning they were found alot of the same sites.
-
-- All had roughly the same median amount of waste volume at the sites they were harvested (1E07)
+3.) All had roughly the same median amount of waste volume at the sites they were harvested (1E07)
 
 ```{r commodity-hist, echo=FALSE, warning=FALSE}
 ggplot(
@@ -243,7 +250,7 @@ ggplot(
     filter(Commodity %in% c("gold", "copper", "molybdenum", "silver"), Calc_Vol > 0),
   aes(x = log10(Calc_Vol), fill = Commodity)) +
   geom_histogram(alpha = 0.35, bins = 15) +
-  theme_bw() +
+  theme_bw(base_size = 10) +
   scale_fill_manual(values = c(
     "gold" = "#E69F00",
     "copper" = "#D55E00",
@@ -259,79 +266,17 @@ ggplot(
 ---
 ## ANOVA test for Commodity Minerals
 
-- What does this mean??
+Comparing 49 Commodity minerals, Pr(<2e-16) shows that the difference in means between individual groups is extremely statistically significant, meaning different mineral commodities have different mean waste volume amounts, although they may be found at the same sites.
 
-```{r anova-commodity, echo=FALSE, warning=FALSE}
+```{r anova-commodity, echo=TRUE, warning=FALSE}
 anova_model <- aov(
   log10(Calc_Vol) ~ Commodity,
-  data = Commodity_Long %>%
-    filter(Commodity %in% Top20$Commodity, Calc_Vol > 0)
+  data = Commodity_Long
 )
 
 summary(anova_model)
 ```
 
 ---
-class: inverse, middle, center
 
-# Gangue Minerals
-
-- What "economically undesireable" minerals are observed in high-waste sites?
-
----
-
-- Stilbite and Apophyllite are the most common Gangue Minerals identified from high waste volume sites.
-
-```{r gangue-plot, echo=FALSE}
-Gangue_Plot_Data <- mining_clean %>%
-  separate_rows(Gangue_Min, sep = ",|;") %>%
-  mutate(Gangue_Min = trimws(Gangue_Min)) %>%
-  mutate(Gangue_Min = gsub("\\s*\\(.*\\)", "", Gangue_Min)) %>%
-  group_by(Gangue_Min) %>%
-  summarize(mean_vol = mean(Calc_Vol, na.rm = TRUE)) %>%
-  slice_max(mean_vol, n = 15)
-
-Gangue_Plot <- Gangue_Plot_Data %>%
-  ggplot(aes(x = reorder(Gangue_Min, mean_vol), y = mean_vol)) +
-  geom_col(fill = "brown") +
-  coord_flip() +
-  theme_bw() +
-  theme(text = element_text(family = "serif", size = 12)) +
-  labs(
-    title = "Size of Mine and Gangue Minerals Identified",
-    x = "Gangue Mineral",
-    y = "Mean Volume"
-  )
-
-Gangue_Plot
-```
-
----
-
-# Stillbite
-
-```{r stillbite, echo = FALSE, out.width = "60%", fig.align = "center", fig.cap = "Image credit: Photo by Enjoy Illinois."}
-include_graphics("img/chicago-fall.jpeg")
-```
-
----
-
-# Images
-
-```{r castle, echo = FALSE, out.width = "60%", fig.align = "center", fig.cap = "Image credit: Photo by Enjoy Illinois."}
-include_graphics("img/chicago-fall.jpeg")
-```
-
-
----
-
-# Feeling adventurous?
-
-- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
-
-- You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
-
-- But some of you might want to play around with slide styling. The 
-`xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
-
-- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.
+# Thanks!

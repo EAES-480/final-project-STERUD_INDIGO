@@ -6,6 +6,7 @@
     <meta name="author" content="Indigo Sterud" />
     <meta name="date" content="2026-05-04" />
     <script src="libs/header-attrs-2.31/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <script src="libs/kePrint-0.0.1/kePrint.js"></script>
     <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
@@ -41,7 +42,6 @@ class: center, middle, inverse, title-slide
 
 
 
-
 ## Research Questions
 
 - Are there differences in waste production across states?
@@ -53,7 +53,7 @@ class: center, middle, inverse, title-slide
 ---
 
 ## Mining Data
-- Columns represent different mine waste features for each Mine Location.
+- Columns represent different mine waste features for each mine location.
 - Commodity = Minerals mine factories want
 - Gangue_Min = non-commodity minerals
 
@@ -148,10 +148,10 @@ class: center, middle
 ## Differences in Calculating Mining Waste per State
 
 ---
+class: center, middle
+**Arizona and Utah have large outliers...**
 
-Arizona and Utah have large outliers...
-
-- This reveals that using medians instead of means will be more beneficial in preventing skewed data.
+This reveals that using medians instead of means will be more beneficial in preventing skewed data, as well as using a log scale.
 
 &lt;img src="presentation_files/figure-html/state-waste-regular-1.png" alt="" width="80%" /&gt;
 
@@ -165,51 +165,23 @@ Arizona and Utah have large outliers...
 
 1.) It is a giant compliaton of PUBLIC mining data across the US, compiled by USGS.
 
-2.) Does not represent the whole of mines across each state / resource, or private companies.
+
+2.) Does not represent the whole of mines across each state / resource, especially private companies.
+
 
 3.) This already gives the data a lot of room for error.
 
+
 ---
 
-``` r
-set.seed(100)
-bootstrap_state &lt;- mining_clean %&gt;%
-  group_by(state_abbr) %&gt;%
-  summarize(
-    boot_median = list(
-      replicate(1000,
-        median(sample(Calc_Vol, replace = TRUE), na.rm = TRUE)
-      )
-    )
-  )
-
-bootstrap_ci &lt;- bootstrap_state %&gt;%
-  mutate(
-    median_est = map_dbl(boot_median, median),
-    lower = map_dbl(boot_median, ~quantile(.x, 0.025)),
-    upper = map_dbl(boot_median, ~quantile(.x, 0.975))
-  )
-
-ggplot(bootstrap_ci,
-       aes(x = reorder(state_abbr, median_est),
-           y = median_est)) +
-  geom_col(fill = "steelblue") +
-  scale_y_log10() +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.35) +
-  theme_bw(base_size = 12) +
-  labs(
-    title = "Bootstrapped Median Mine Waste Volume by State",
-    x = "State",
-    y = "Median Volume"
-  )
-```
+**Bootstrapping** helps since some states have more mining sites than others.
 
 &lt;img src="presentation_files/figure-html/state-waste-bootstrap-1.png" alt="" width="80%" /&gt;
 
 ---
 class: inverse, middle, center
 
-# Commodity Minerals and Waste
+## Commodity Minerals and Waste
 
 - What is the relationship between the type of mineral and the amount of waste produced?
 
@@ -218,91 +190,58 @@ class: inverse, middle, center
 
 &lt;img src="presentation_files/figure-html/commodity-plot-1.png" alt="" width="80%" /&gt;
 
-- Tellurium is often harvested form large Mine Waste Locations
+- Tellurium is often harvested from large Mine Waste Locations
 
 - Gold is often associated with mines that are smaller scale and produce less waste.
 
 ---
-## Commodity Scatterplot
+# Commodity Scatterplot
 
-Silver, Molybdenum, Gold and Copper are the most prevalent.
+*Silver, Molybdenum, Gold and Copper* are the most prevalent.
 
 &lt;img src="presentation_files/figure-html/commodity-scatter-1.png" alt="" width="80%" /&gt;
 ---
 
-- The most amount of mine locations contained copper.
+1.) The most amount of mine locations contained copper, the least amount of mine locations contained silver.
 
-- The least amount of mine locations contained silver.
+2.) All had roughly the same shape, probably meaning they were found many of the same sites.
 
-- All had roughly the same shape, probably meaning they were found alot of the same sites.
-
-- All had roughly the same median amount of waste volume at the sites they were harvested (1E07)
+3.) All had roughly the same median amount of waste volume at the sites they were harvested (1E07)
 
 &lt;img src="presentation_files/figure-html/commodity-hist-1.png" alt="" width="80%" /&gt;
 ---
 ## ANOVA test for Commodity Minerals
 
-- What does this mean??
+Comparing 49 Commodity minerals, Pr(&lt;2e-16) shows that the difference in means between individual groups is extremely statistically significant, meaning different mineral commodities have different mean waste volume amounts, although they may be found at the same sites.
 
+
+``` r
+anova_model &lt;- aov(
+  log10(Calc_Vol) ~ Commodity,
+  data = Commodity_Long
+)
+
+summary(anova_model)
+```
 
 ```
 ##               Df Sum Sq Mean Sq F value Pr(&gt;F)    
-## Commodity     19  160.7   8.456   7.987 &lt;2e-16 ***
-## Residuals   1210 1281.0   1.059                   
+## Commodity     49   1341  27.360   21.93 &lt;2e-16 ***
+## Residuals   2033   2537   1.248                   
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 52 observations deleted due to missingness
 ```
 
 ---
-class: inverse, middle, center
 
-# Gangue Minerals
-
-- What "economically undesireable" minerals are observed in high-waste sites?
-
----
-
-- Stilbite and Apophyllite are the most common Gangue Minerals identified from high waste volume sites.
-
-&lt;img src="presentation_files/figure-html/gangue-plot-1.png" alt="" width="80%" /&gt;
-
----
-
-# Stillbite
-
-&lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="img/chicago-fall.jpeg" alt="Image credit: Photo by Enjoy Illinois." width="60%" /&gt;
-&lt;p class="caption"&gt;Image credit: Photo by Enjoy Illinois.&lt;/p&gt;
-&lt;/div&gt;
-
----
-
-# Images
-
-&lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="img/chicago-fall.jpeg" alt="Image credit: Photo by Enjoy Illinois." width="60%" /&gt;
-&lt;p class="caption"&gt;Image credit: Photo by Enjoy Illinois.&lt;/p&gt;
-&lt;/div&gt;
-
-
----
-
-# Feeling adventurous?
-
-- Want to find out more about `xaringan`? See https://slides.yihui.name/xaringan/#1.
-
-- You are welcomed to use the default styling of the slides. In fact, that's what I expect majority of you will do. You will differentiate yourself with the content of your presentation.
-
-- But some of you might want to play around with slide styling. The 
-`xaringanthemer` provides some solutions for this that: https://pkg.garrickadenbuie.com/xaringanthemer.
-
-- And if you want more bells and whistles, there is also `xaringanExtra`: https://pkg.garrickadenbuie.com/xaringanExtra.
+# Thanks!
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
   "ratio": "16:9",
-  "highlightStyle": "github",
+  "highlightStyle": "solarized-light",
   "highlightLines": true,
   "countIncrementalSlides": false
 });
