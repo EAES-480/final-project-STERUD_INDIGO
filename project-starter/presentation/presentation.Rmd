@@ -309,7 +309,7 @@ t.test(
 )
 ```
 ---
-##T-test: Copper and Molybenum
+## T-test: Copper and Molybenum
 p = 1.531e-05 shows a highly significant difference between copper and molybdenum waste sites.
 
 - Molybdenum sites are found in mines with much higher waste volumes than copper.
