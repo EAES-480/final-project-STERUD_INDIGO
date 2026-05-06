@@ -286,6 +286,7 @@ ggplot(
 ## ANOVA test for Commodity Minerals
 
 Comparing 49 Commodity minerals, Pr(<2e-16) shows that the difference in means between individual groups is extremely statistically significant, meaning different mineral commodities have different mean waste volume amounts, although they may be found at the same sites.
+F-value (21.93) shows that the variation between commodity mineral means is significantly larger than the variation within the groups themselves.
 
 ```{r anova-commodity, echo=TRUE, warning=FALSE}
 anova_model <- aov(
@@ -296,6 +297,29 @@ anova_model <- aov(
 summary(anova_model)
 ```
 
+---
+## T-test: Gold and Copper
+No statistically significant difference in average log-transformed mine waste volume sites between copper and gold (p = 0.2922).
+
+```{r t-test gc, echo = FALSE}
+t.test(
+  log_vol ~ Commodity,
+  data = mining_clean %>%
+    filter(Commodity %in% c("copper", "gold"))
+)
+```
+---
+##T-test: Copper and Molybenum
+p = 1.531e-05 shows a highly significant difference between copper and molybdenum waste sites.
+
+- Molybdenum sites are found in mines with much higher waste volumes than copper.
+```{r gold and molybdenum, echo = FALSE}
+t.test(
+  log_vol ~ Commodity,
+  data = mining_clean %>%
+    filter(Commodity %in% c("copper", "molybdenum"), Calc_Vol > 0)
+)
+```
 ---
 
 # Thanks!
