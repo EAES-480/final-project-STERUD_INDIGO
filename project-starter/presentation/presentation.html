@@ -228,6 +228,7 @@ What is the relationship between the type of mineral and the amount of waste pro
 ## ANOVA test for Commodity Minerals
 
 Comparing 49 Commodity minerals, Pr(&lt;2e-16) shows that the difference in means between individual groups is extremely statistically significant, meaning different mineral commodities have different mean waste volume amounts, although they may be found at the same sites.
+F-value (21.93) shows that the variation between commodity mineral means is significantly larger than the variation within the groups themselves.
 
 
 ``` r
@@ -247,6 +248,43 @@ summary(anova_model)
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
+---
+## T-test: Gold and Copper
+No statistically significant difference in average log-transformed mine waste volume sites between copper and gold (p = 0.2922).
+
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  log_vol by Commodity
+## t = 1.0736, df = 27.991, p-value = 0.2922
+## alternative hypothesis: true difference in means between group copper and group gold is not equal to 0
+## 95 percent confidence interval:
+##  -0.3915282  1.2539210
+## sample estimates:
+## mean in group copper   mean in group gold 
+##             5.789572             5.358376
+```
+---
+## T-test: Copper and Molybenum
+p = 1.531e-05 shows a highly significant difference between copper and molybdenum waste sites.
+
+- Molybdenum sites are found in mines with much higher waste volumes than copper.
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  log_vol by Commodity
+## t = -5.86, df = 17.917, p-value = 1.531e-05
+## alternative hypothesis: true difference in means between group copper and group molybdenum is not equal to 0
+## 95 percent confidence interval:
+##  -2.408736 -1.137077
+## sample estimates:
+##     mean in group copper mean in group molybdenum 
+##                 5.789572                 7.562478
+```
 ---
 
 # Thanks!

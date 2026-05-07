@@ -17,6 +17,7 @@ output:
 ```{r load-packages, include = FALSE}
 # Add any additional packages you need to this chunk
 library(ggplot2)
+library(xaringan)
 library(tidyverse)
 library(tidymodels)
 library(palmerpenguins)
