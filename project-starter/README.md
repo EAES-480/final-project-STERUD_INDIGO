@@ -13,7 +13,7 @@ with the volume of waste produced at mining sites. The main questions I wanted t
 address were: are there differences in waste production across states? And, do 
 certain mineral commodities produce more waste than others? 
 
-#Results
+# Results
 Overall, my results found 
 that using log-scaling was important in creating more honest comparisons between 
 groups, and there was a significant difference in waste volumes between at least 
@@ -25,14 +25,14 @@ while copper and molybdenum displayed a significant difference in volumes. Only
 therefore there is no evidence to significantly state that mean site waste 
 volumes differ between mineral commodities.
 
-#Limitations
+# Limitations
 It is also crucial to disclose that the data used from the NMWI is a giant 
 compilation of publicly available mining data across 10 different US states. 
 This dataset does not represent the whole of all states or mineral commodities, 
 and is limited further by the lack of publicly released information by private 
 mining companies.
 
-#Methods and Discussion
+# Methods and Discussion
 To begin, two .csv files from the NMWI, named Waste_Geology and Waste_Resources 
 were first combined to form mining_clean, where the main variables observed 
 included state_abbr (abbreviated state name), Calc_Vol (the volume of waste at the 
