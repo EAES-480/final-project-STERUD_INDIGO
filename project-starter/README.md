@@ -9,7 +9,12 @@ mining sites into groundwater, rivers, and ponds (*Associated Press*),
 contaminating waterways with toxic leachate solutions. I decided to run a 
 statistical analysis on National Mine Waste Inventory (NMWI) data because I was 
 interested on discovering if specific minerals or states displayed relationships 
-with the volume of waste produced at mining sites. Overall, my results found 
+with the volume of waste produced at mining sites. The main questions I wanted to 
+address were: are there differences in waste production across states? And, do 
+certain mineral commodities produce more waste than others? 
+
+**Results**
+Overall, my results found 
 that using log-scaling was important in creating more honest comparisons between 
 groups, and there was a significant difference in waste volumes between at least 
 one of the 10 states with others, as well as between commodity minerals via ANOVA 
@@ -20,12 +25,14 @@ while copper and molybdenum displayed a significant difference in volumes. Only
 therefore there is no evidence to significantly state that mean site waste 
 volumes differ between mineral commodities.
 
+**Limitations**
 It is also crucial to disclose that the data used from the NMWI is a giant 
 compilation of publicly available mining data across 10 different US states. 
 This dataset does not represent the whole of all states or mineral commodities, 
 and is limited further by the lack of publicly released information by private 
 mining companies.
 
+**Methods and Discussion**
 To begin, two .csv files from the NMWI, named Waste_Geology and Waste_Resources 
 were first combined to form mining_clean, where the main variables observed 
 included state_abbr (abbreviated state name), Calc_Vol (the volume of waste at the 
@@ -56,7 +63,8 @@ shape, being left-skewed, and peaking at 1.5e07 m^3. Using a T-test for gold and
 copper, there was no significant difference in the average log-transformed 
 mine-waste volumes, having a p-value of 0.29. But for copper and molybdenum, 
 a p = 1.531e-05 shows a highly significant difference between copper and 
-molybdenum average waste volume amounts. 
+molybdenum average waste volume amounts.
+
 When comparing all 49 commodity minerals through by performing an ANOVA test, a 
 Pr(<F) of <2e-16 shows that the difference in means between at least one commodity
 and the others is extremely statistically significant, meaning that at least one
